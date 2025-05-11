@@ -9,11 +9,11 @@ from io import BytesIO
 # Load pre-trained ResNet model and modify the final layer for 3 classes
 model = models.resnet50(pretrained=True)  # Using ResNet50 here, you can change it to ResNet18 or any other
 # Replace the final fully connected layer to output 3 classes (normal, tuberculosis, pneumonia)
-model.fc = nn.Linear(model.fc.in_features, 3)  # 3 output classes
+model.fc = nn.Linear(model.fc.in_features, 7)  # 3 output classes
 
 # Load the model weights if you've trained it on your dataset
 device = torch.device("cpu")  # For CPU-only inference, change to "cuda" if you have a GPU
-model.load_state_dict(torch.load('./best-model', map_location=device))  # Load model weights
+model.load_state_dict(torch.load('best_model_7.pth', map_location=device))  # Load model weights
 model.eval()  # Set model to evaluation mode
 
 # Define image transformations for ResNet (same as pre-trained models)
@@ -25,7 +25,16 @@ data_transform = transforms.Compose([
 ])
 
 # Define the class index mapping
-class_index = {0: 'NORMAL', 1: 'PNEUMONIA', 2: 'TUBERCULOSIS'}
+# class_index = {0: 'NORMAL', 1: 'PNEUMONIA', 2: 'TUBERCULOSIS'}
+class_index = {
+    0: 'Cyst',
+    1: 'Normal_Kidney',
+    2: 'Normal_Lung',
+    3: 'Pneumonia',
+    4: 'Stone',
+    5: 'Tuberculosis',
+    6: 'Tumor'
+}
 
 # Function to preprocess the image and perform prediction
 def preprocess_image(image: Image.Image):
@@ -147,10 +156,11 @@ st.markdown("""
 # Page title
 st.markdown("<h1 class='stTitle'>AI Medical Lab</h1>", unsafe_allow_html=True)
 st.markdown("""
-    <div class="stMarkdown">
-        Upload a chest X-ray image to detect whether the lung disease is Normal, Pneumonia, or Tuberculosis.
+    <div style="color: blue;">
+        Upload a Chest X-ray or a CT scan image of kidney to detect the disease.
     </div>
 """, unsafe_allow_html=True)
+
 
 # File uploader widget
 uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"])
